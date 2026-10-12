@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta charset='UTF-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+		<title>Control ESP32</title>
+
+		<style>
+
+			/* Background */
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background-color: #f4f7f6;
+				color: #333333;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				margin: 0;
+			}
+
+			/* Card */
+			.container {
+				background-color: #ffffff;
+				padding: 30px;
+				border-radius: 12px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+				text-align: center;
+				max-width: 350px;
+				width: 100%;
+			}
+
+			/* Heading */
+			h1 {
+				color: #1a365d;
+				font-size: 24px;
+				margin-bottom: 20px;
+			}
+
+			/* Text */
+			p {
+				font-size: 16px;
+				color: #4a5568;
+				margin-bottom: 15px;
+			}
+
+			/* Switch */
+			.switch {
+				position: relative;
+				display: inline-block;
+				width: 86px;
+				height: 46px
+			}
+
+			.switch input {
+				display: none;
+			}
+
+			/* switch off */
+			.slider {
+				position: absolute;
+				cursor: pointer;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-color: #cbd5e0;
+				transition: .4s
+			}
+
+			/* switch bullet */
+			.slider:before {
+				position: absolute;
+				content: '';
+				height: 38px;
+				width: 38px;
+				left: 4px;
+				bottom: 4px;
+				background-color: white;
+				transition: .4s
+			}
+
+			/* switch on */
+			input:checked+.slider {
+				background-color: #1a365d;
+			}
+			input:focus+.slider {
+				box-shadow: 0 0 1px #1a365d;
+			}
+
+			input:checked+.slider:before {
+				transform: translateX(40px)
+			}
+
+			/* switch disabled */
+			input:disabled + .slider {
+				background-color: #718096 !important;
+				cursor: not-allowed;
+				opacity: 1;
+			}
+
+			/* Round edges */
+			.slider.round {
+				border-radius: 30px;
+			}
+			.slider.round:before {
+				border-radius: 50%;
+			}
+		</style>
+
+		<script type='text/javascript'>
+
+			// -------------------------------------------------------------
+			// HTTP REQUEST HELPER
+			// -------------------------------------------------------------
+			async function httpRequest(url, method = 'GET') {
+				try {
+					const response = await fetch(url, { method });
+					if (!response.ok) {
+						throw new Error(`Server error: ${response.status}`);
+					}
+					return await response.text();
+				} catch (error) {
+					throw new Error(`Network error: ${error.message}`);
+				}
+			}
+
+			// -------------------------------------------------------------
+			// LED CONTROL VIA ESP32 REST API
+			// -------------------------------------------------------------
+
+			// Query the ESP32 for the current LED state and update the UI.
+			async function getLED() {
+				try {
+					const json = await httpRequest('/builtInLed');
+					const obj = JSON.parse(json);
+					ledSwitch.disabled = false;
+					ledSwitch.checked = (obj.builtInLed === 'on');
+				} catch (_) {
+                    // Error already reported by httpRequest()
+                }
+			}
+
+			// Send the requested LED state to the ESP32 and synchronize
+			// the switch position with the state reported by the server.
+			async function turnLED(On) {
+				try {
+					const json = await httpRequest(On ? '/builtInLed/on' : '/builtInLed/off', 'PUT');
+					const obj = JSON.parse(json);
+					ledSwitch.disabled = false;
+					ledSwitch.checked = (obj.builtInLed === 'on');
+				} catch (_) {
+					// Error already reported by httpRequest()
+				}
+			}
+
+			// Synchronize the switch state with the ESP32 when the page loads.
+			getLED();
+
+		</script>
+
+	</head>
+
+	<body>
+
+		<div class='container'>
+			<h1>Control ESP32</h1>
+			
+			<p>Built-in LED</p>
+
+			<label class='switch' for='ledSwitch'><input type='checkbox' disabled id='ledSwitch' onClick='turnLED (this.checked)'><div class='slider round'></div></label>
+		</div>
+
+	</body>
+</html>
