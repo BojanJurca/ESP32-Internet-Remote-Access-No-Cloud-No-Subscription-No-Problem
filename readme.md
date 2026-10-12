@@ -96,8 +96,8 @@ Modern browsers allow a web page to be added to a smartphone's home screen.
 
 Prepare:
 
-- `android-192.png` (192 × 192 pixels)
-- `apple-180.png` (180 × 180 pixels)
+- `appIcon192x192.png` (192 × 192 pixels, for Android)
+- `appIcon180x180.png` (180 × 180 pixels, for iOS)
 
 These icons will be displayed when the page is installed as a shortcut.
 
@@ -105,7 +105,7 @@ These icons will be displayed when the page is installed as a shortcut.
 
 The ESP32 HTTP server serves static files from its web root directory.
 
-Copy `index.html`, `android-192.png`, and `apple-180.png` to: /var/www/html dirctory on your ESP32.
+Copy `index.html`, `appIcon192x192.png`, and `appIcon180x180.png` to: /var/www/html dirctory on your ESP32.
 
 The example page provides:
 
@@ -117,20 +117,9 @@ The example page provides:
 <!DOCTYPE html>
 <html lang='en'>
 	<head>
-		<title>Control ESP32 from Your Smartphone</title>
-
 		<meta charset='UTF-8'>
-    	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-
-		<!-- Disable browser caching during development so changes are visible immediately -->
-		<meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate, max-age=0'>
-		<meta http-equiv='Pragma' content='no-cache'>
-		<meta http-equiv='Expires' content='0'>
-
-    	<link rel='icon' type='image/png' sizes='192x192' href='android-192.png'>
-    	<link rel='apple-touch-icon' sizes='180x180' href='apple-180.png'>
-
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+		<title>Control ESP32</title>
 
 		<script type='text/javascript'>
 
@@ -182,14 +171,18 @@ The example page provides:
 			getLED();
 
 		</script>
-		
+
 	</head>
 
 	<body>
-		<br><h1>Control ESP32 from Your Smartphone</h1><br><br>
 
-		Built-in LED
-		<label class='switch' for='ledSwitch'><input type='checkbox' disabled id='ledSwitch' onClick='turnLED (this.checked)'><div class='slider round'></div></label>
+		<div class='container'>
+			<h1>Control ESP32</h1>
+			
+			<p>Built-in LED</p>
+
+			<label class='switch' for='ledSwitch'><input type='checkbox' disabled id='ledSwitch' onClick='turnLED (this.checked)'><div class='slider round'></div></label>
+		</div>
 
 	</body>
 </html>
@@ -212,16 +205,56 @@ Custom CSS can improve:
 ```css
 		<style>
 
-			/* heading style */
-			h1 {font-family: verdana; font-size: 32px; text-align: center}
+			/* Background */
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background-color: #f4f7f6;
+				color: #333333;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				margin: 0;
+			}
 
-			/* switch style */
+			/* Card */
+			.container {
+				background-color: #ffffff;
+				padding: 30px;
+				border-radius: 12px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+				text-align: center;
+				max-width: 350px;
+				width: 100%;
+			}
+
+			/* Heading */
+			h1 {
+				color: #1a365d;
+				font-size: 24px;
+				margin-bottom: 20px;
+			}
+
+			/* Text */
+			p {
+				font-size: 16px;
+				color: #4a5568;
+				margin-bottom: 15px;
+			}
+
+			/* Switch */
 			.switch {
 				position: relative;
 				display: inline-block;
 				width: 86px;
 				height: 46px
 			}
+
+			.switch input {
+				display: none;
+			}
+
+			/* switch off */
 			.slider {
 				position: absolute;
 				cursor: pointer;
@@ -229,10 +262,11 @@ Custom CSS can improve:
 				left: 0;
 				right: 0;
 				bottom: 0;
-				background-color: #ccc;
-				-webkit-transition: .4s;
+				background-color: #cbd5e0;
 				transition: .4s
 			}
+
+			/* switch bullet */
 			.slider:before {
 				position: absolute;
 				content: '';
@@ -241,40 +275,35 @@ Custom CSS can improve:
 				left: 4px;
 				bottom: 4px;
 				background-color: white;
-				-webkit-transition: .4s;
 				transition: .4s
 			}
+
+			/* switch on */
 			input:checked+.slider {
-				background-color: hsl(207, 90%, 30%)
+				background-color: #1a365d;
 			}
 			input:focus+.slider {
-				box-shadow: 0 0 1px hsl(207, 90%, 30%)
+				box-shadow: 0 0 1px #1a365d;
 			}
+
 			input:checked+.slider:before {
-				-webkit-transform: translateX(40px);
-				-ms-transform: translateX(40px);
 				transform: translateX(40px)
 			}
-			.switch input {
-				display: none
+
+			/* switch disabled */
+			input:disabled + .slider {
+				background-color: #718096 !important;
+				cursor: not-allowed;
+				opacity: 1;
 			}
+
+			/* Round edges */
 			.slider.round {
-				border-radius: 30px
+				border-radius: 30px;
 			}
 			.slider.round:before {
-				border-radius: 50%
+				border-radius: 50%;
 			}
-			input:disabled+.slider {
-				background-color: #aaa
-			}
-
-			/* body style */
-			body {
-				font-family: Verdana, sans-serif;
-				margin: 10px;
-				overflow-wrap: break-word;
-			}
-
 		</style>
 ```
 
@@ -528,6 +557,15 @@ both as:
 #ifndef WOLFSSL_USER_SETTINGS_H
 #define WOLFSSL_USER_SETTINGS_H
 
+
+/* --------------------------------------------------------------------------
+   DEBUGGING
+   -------------------------------------------------------------------------- */
+
+// #define DEBUG_WOLFSSL
+// Besides #defining DEBUG_WOLFSSL the wolfSSL_Debugging_ON (); function needs to be called 
+
+
 /* ==========================================================================
    UNIVERSAL WolfSSL user_settings.h for ESP32-WROOM and ESP32-S2
    Compatible in BOTH directions (client ↔ server)
@@ -542,8 +580,10 @@ both as:
 #define WOLFSSL_ESP32
 #define FREERTOS
 
-/* Disable hardware crypto everywhere (S2 does not support it) */
+
+/* Disable hardware crypto everywhere (WROOM and S2 do not support it) */
 #define NO_WOLFSSL_ESP32_CRYPT_HASH
+
 
 /* --------------------------------------------------------------------------
    TLS VERSIONS
@@ -552,13 +592,15 @@ both as:
 #define NO_OLD_TLS
 /* DO NOT disable TLS 1.2 — ESP32-S2 needs fallback */
 
+
 /* --------------------------------------------------------------------------
    TLS EXTENSIONS (REQUIRED for TLS 1.3)
    -------------------------------------------------------------------------- */
 #define HAVE_TLS_EXTENSIONS
 #define HAVE_SUPPORTED_CURVES
 #define HAVE_HKDF
-#define HAVE_SNI        /* allow SNI from browsers */
+// #define HAVE_SNI        /* allow SNI from browsers */
+
 
 /* --------------------------------------------------------------------------
    ECC CONFIGURATION
@@ -571,6 +613,7 @@ both as:
 #define ECC_SHAMIR
 #define ECC_TIMING_RESISTANT
 
+
 /* --------------------------------------------------------------------------
    SYMMETRIC CRYPTO
    -------------------------------------------------------------------------- */
@@ -578,13 +621,15 @@ both as:
 #define HAVE_HMAC
 /* SHA256 required */
 
+
 /* --------------------------------------------------------------------------
    RSA DISABLED (ECC-only)
    -------------------------------------------------------------------------- */
 #define NO_RSA
 
+
 /* --------------------------------------------------------------------------
-   MEMORY CONFIGURATION (critical for ESP32-S2)
+   MEMORY CONFIGURATION
    -------------------------------------------------------------------------- */
 #define USE_FAST_MATH
 #define TFM_TIMING_RESISTANT
@@ -592,13 +637,17 @@ both as:
 /* TLS 1.3 handshake requires >2 KB record size */
 #undef RECORD_SIZE
 #define RECORD_SIZE 4096
+#define WOLFSSL_MAX_FRAGMENT_SIZE 4096
 
-/* ECC big integer limit — required for DER parsing on ESP32-S2 */
+
+/* ECC big integer limit — required for DER parsing */
 #undef FP_MAX_BITS
 #define FP_MAX_BITS 4096
 
-/* Static memory disabled (causes intermittent -125 on S2) */
+
+/* Static memory disabled */
 // #define WOLFSSL_STATIC_MEMORY
+
 
 /* --------------------------------------------------------------------------
    OPTIONAL MEMORY SAVING (SAFE)
@@ -609,6 +658,7 @@ both as:
 #define NO_PWDBASED
 #define NO_ERROR_STRINGS   /* optional */
 
+
 /* --------------------------------------------------------------------------
    UNSAFE / INCOMPATIBLE FEATURES (MUST BE DISABLED)
    -------------------------------------------------------------------------- */
@@ -616,9 +666,11 @@ both as:
 #undef WOLFSSL_DYNAMIC_BUFFERS
 #undef ALT_ECC_SIZE
 
+
 /* --------------------------------------------------------------------------
    END
    -------------------------------------------------------------------------- */
+
 #endif /* WOLFSSL_USER_SETTINGS_H */
 ```
 
@@ -757,9 +809,9 @@ del /q server.csr server-ext.cnf server-public.pem cert-public.pem 2>nul
 
 echo.
 echo SUCCESS. Generated:
-echo   ca-cert.pem       Root CA certificate in PEM format (for certificate veritication) - keep offline and secret
-echo   ca-cert.crt       Root CA certificate in DER format (for certificate veritication) - install it on the client: Android or iOS phone, when ESP32 is used as SSL client copy it to /etc/ssl/certs. More than one .crt file can reside there
-echo   ca-key.pem        Root CA private key                                              - keep offline and secret
+echo   ca-cert.pem       Root CA certificate in PEM format (for certificate veritication) - copy it to /etc/ssl/certs on the SSL client
+echo   ca-cert.crt       Root CA certificate in DER format (for certificate veritication) - install it on Android or iOS phone
+echo   ca-key.pem        Root CA private key - keep offline and secret
 echo   server-cert.pem   Server certificate in PEM format
 echo   server-cert.der   Server certificate in DER format                                 - copy it to /etc/ssl/certs on the SSL server
 echo   server-key.pem    Server private key in PEM/SEC1 format
@@ -787,7 +839,7 @@ server-key.der
 
 
 To eliminate browser security warnings like 
-![Not safe](https.png)
+![Not safe](not_safe.png)
 and display a trusted HTTPS connection, also install the CA certificate:
 
 ```text
@@ -798,7 +850,7 @@ on:
 
 - Android
 - iOS
-
+- another /etc/ssl/ca-trust folder if you want to use it as HTTPS client
 
 
 Do not distribute:
