@@ -537,7 +537,6 @@ WolfSSL is highly configurable, making it suitable for embedded systems with lim
 
 This tutorial uses:
 
-- TLS 1.2
 - TLS 1.3
 - ECC cryptography
 - AES-GCM
