@@ -117,8 +117,13 @@ The example page provides:
 <!DOCTYPE html>
 <html lang='en'>
 	<head>
-		<meta charset='UTF-8'>
+        <meta http-equiv='content-type' content='text/html; charset=utf-8' />            
 		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+        <link rel='shortcut icon' type='image/x-icon' sizes='192x192' href='/appIcon192x192.png'>
+        <link rel='icon' type='image/png' sizes='192x192' href='/appIcon192x192.png'>
+        <link rel='apple-touch-icon' sizes='180x180' href='/appIcon180x180.png'>
+
 		<title>Control ESP32</title>
 
 		<script type='text/javascript'>
@@ -509,7 +514,7 @@ NAT Loopback allows the same public hostname to be used:
 
 Without NAT Loopback, you may need different addresses depending on where you connect from.
 
-Not aal routers support this feature.
+Not all routers support this feature.
 
 ---
 
@@ -808,9 +813,9 @@ del /q server.csr server-ext.cnf server-public.pem cert-public.pem 2>nul
 
 echo.
 echo SUCCESS. Generated:
-echo   ca-cert.pem       Root CA certificate in PEM format (for certificate veritication) - copy it to /etc/ssl/certs on the SSL client
-echo   ca-cert.crt       Root CA certificate in DER format (for certificate veritication) - install it on Android or iOS phone
-echo   ca-key.pem        Root CA private key - keep offline and secret
+echo   ca-cert.pem       Root CA certificate in PEM format (for certificate veritication) - keep offline and secret
+echo   ca-cert.crt       Root CA certificate in DER format (for certificate veritication) - install it on the client Android or iOS phone
+echo   ca-key.pem        Root CA private key 											  - keep offline and secret
 echo   server-cert.pem   Server certificate in PEM format
 echo   server-cert.der   Server certificate in DER format                                 - copy it to /etc/ssl/certs on the SSL server
 echo   server-key.pem    Server private key in PEM/SEC1 format
